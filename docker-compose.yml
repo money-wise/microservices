@@ -1,0 +1,158 @@
+services:
+  # MongoDB databases
+  mongo-auth:
+    image: mongo:latest
+    container_name: mongo-auth
+    volumes:
+      - mongo-auth-data:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - finance-network
+    # healthcheck:
+    #   test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
+
+  mongo-transaction:
+    image: mongo:latest
+    container_name: mongo-transaction
+    volumes:
+      - mongo-transaction-data:/data/db
+    ports:
+      - "27018:27017"
+    networks:
+      - finance-network
+    # healthcheck:
+    #   test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+    #   interval: 10s
+    #   timeout: 5s
+    #   retries: 5
+
+  mongo-budget:
+    image: mongo:latest
+    container_name: mongo-budget
+    volumes:
+      - mongo-budget-data:/data/db
+    ports:
+      - "27019:27017"
+    networks:
+      - finance-network
+
+  # NATS message broker
+  nats:
+    image: nats:latest
+    container_name: nats
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    networks:
+      - finance-network
+    # Simplify the command to ensure stability
+    command: "--http_port 8222"
+    # Improve the health check to be more reliable
+    # healthcheck:
+    #   test: ["CMD", "wget", "--spider", "http://localhost:8222/varz", "-q"]
+    #   interval: 5s
+    #   timeout: 3s
+    #   retries: 10
+    #   start_period: 5s
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./api-gateway
+    container_name: api-gateway
+    depends_on:
+      - nats
+    environment:
+      - NATS_URL=nats://nats:4222
+      - NODE_ENV=production
+    ports:
+      - "3000:3000"
+    networks:
+      - finance-network
+    restart: on-failure
+
+  # Microservices
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    depends_on:
+      - nats
+      - mongo-auth
+    environment:
+      - NATS_URL=nats://nats:4222
+      - MONGODB_URI=mongodb://mongo-auth:27017/auth-db
+      - NODE_ENV=production
+    networks:
+      - finance-network
+    restart: on-failure
+
+  transaction-service:
+    build:
+      context: ./transaction-service
+    container_name: transaction-service
+    depends_on:
+      - nats
+      - mongo-transaction
+    environment:
+      - NATS_URL=nats://nats:4222
+      - MONGODB_URI=mongodb://mongo-transaction:27017/transaction-db
+      - NODE_ENV=production
+    networks:
+      - finance-network
+    restart: on-failure
+
+  budget-service:
+    build:
+      context: ./budget-service
+    container_name: budget-service
+    depends_on:
+      - nats
+      - mongo-budget
+    environment:
+      - NATS_URL=nats://nats:4222
+      - MONGODB_URI=mongodb://mongo-budget:27017/budget-db
+      - NODE_ENV=production
+    networks:
+      - finance-network
+    restart: on-failure
+
+  analytics-service:
+    build:
+      context: ./analytics-service
+    container_name: analytics-service
+    depends_on:
+      - nats
+    environment:
+      - NATS_URL=nats://nats:4222
+      - NODE_ENV=production
+    networks:
+      - finance-network
+    restart: on-failure
+
+  ai-insights-service:
+    build:
+      context: ./ai-insights-service
+    container_name: ai-insights-service
+    depends_on:
+      - nats
+    environment:
+      - NATS_URL=nats://nats:4222
+      - NODE_ENV=production
+    networks:
+      - finance-network
+    restart: on-failure
+
+networks:
+  finance-network:
+    driver: bridge
+
+volumes:
+  mongo-auth-data:
+  mongo-transaction-data:
+  mongo-budget-data:
