@@ -15,6 +15,122 @@ This project consists of the following microservices:
 
 All microservices communicate with each other via NATS message broker.
 
+### Architecture Diagram
+
+```mermaid
+graph TD
+    Client[Client Applications] --> Gateway[API Gateway]
+    Gateway --> Auth[Auth Service]
+    Gateway --> Transaction[Transaction Service]
+    Gateway --> Budget[Budget Service]
+    Gateway --> Analytics[Analytics Service]
+    Gateway --> AI[AI Insights Service]
+    
+    %% Database connections
+    Auth --> AuthDB[(Auth DB)]
+    Transaction --> TransactionDB[(Transaction DB)]
+    Budget --> BudgetDB[(Budget DB)]
+    
+    %% NATS Message Broker
+    NATS{NATS Message Broker} 
+    Auth <--> NATS
+    Transaction <--> NATS
+    Budget <--> NATS
+    Analytics <--> NATS
+    AI <--> NATS
+    Gateway <--> NATS
+    
+    %% Service interactions
+    Transaction -- "Uses auth data" --> Auth
+    Budget -- "Uses auth data" --> Auth
+    Analytics -- "Uses transaction data" --> Transaction
+    Analytics -- "Uses budget data" --> Budget
+    AI -- "Uses transaction data" --> Transaction
+    AI -- "Uses budget data" --> Budget
+    
+    %% Styling
+    classDef gateway fill:#f9f,stroke:#333,stroke-width:2px
+    classDef service fill:#bbf,stroke:#333,stroke-width:1px
+    classDef database fill:#fda,stroke:#333,stroke-width:1px
+    classDef broker fill:#bfb,stroke:#333,stroke-width:2px
+    
+    class Gateway gateway
+    class Auth,Transaction,Budget,Analytics,AI service
+    class AuthDB,TransactionDB,BudgetDB database
+    class NATS broker
+```
+
+## Service Descriptions
+
+### API Gateway
+
+- **Purpose**: Single entry point for all client applications
+- **Responsibilities**:
+  - Route API requests to appropriate microservices
+  - Handle authentication and authorization via JWT
+  - Provide unified API documentation with Swagger
+  - Perform request validation
+- **Technologies**: NestJS, Passport.js, Swagger
+
+### Auth Service
+
+- **Purpose**: Manage user authentication and authorization
+- **Responsibilities**:
+  - User registration and login
+  - Password encryption and verification
+  - JWT token generation and validation
+  - User profile management
+- **Technologies**: NestJS, bcrypt, JWT, MongoDB
+
+### Transaction Service
+
+- **Purpose**: Handle financial transaction management
+- **Responsibilities**:
+  - Create, read, update, and delete transactions
+  - Categorize transactions (income, expense)
+  - Store transaction metadata (date, category, description)
+  - Upload and store transaction receipts
+- **Technologies**: NestJS, MongoDB
+
+### Budget Service
+
+- **Purpose**: Manage budget creation and tracking
+- **Responsibilities**:
+  - Create and manage budget plans
+  - Track spending against budget limits
+  - Provide budget utilization statistics
+  - Support recurring budgets
+- **Technologies**: NestJS, MongoDB
+
+### Analytics Service
+
+- **Purpose**: Provide financial analytics and reporting
+- **Responsibilities**:
+  - Calculate spending patterns
+  - Generate financial summaries
+  - Provide trend analysis
+  - Create visualizable data for dashboards
+- **Technologies**: NestJS
+
+### AI Insights Service
+
+- **Purpose**: Provide AI-powered financial insights
+- **Responsibilities**:
+  - Generate savings recommendations
+  - Identify spending patterns
+  - Predict future expenses
+  - Suggest budget optimizations
+- **Technologies**: NestJS, Machine Learning libraries
+
+### NATS Message Broker
+
+- **Purpose**: Enable asynchronous communication between microservices
+- **Responsibilities**:
+  - Message routing
+  - Event broadcasting
+  - Service discovery
+  - Load balancing
+
 ## Prerequisites
 
 <!-- - Docker and Docker Compose -->
