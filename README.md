@@ -17,7 +17,7 @@ All microservices communicate with each other via NATS message broker.
 
 ## Prerequisites
 
-- Docker and Docker Compose
+<!-- - Docker and Docker Compose -->
 - Node.js (v16 or higher) - only for local development
 - Yarn or npm - only for local development
 
@@ -30,26 +30,7 @@ git clone <repository-url>
 cd money-wise/microservices
 ```
 
-### 2. Environment Setup
-
-Create or update the `.env` file with the necessary configuration values:
-
-```
-# JWT Configuration
-JWT_SECRET=your_jwt_secret_key
-JWT_EXPIRATION=24h
-
-# Service URLs
-API_GATEWAY_URL=http://localhost:3000
-
-# Uncomment and update when deploying to AWS
-# AWS_ACCESS_KEY=your_aws_access_key
-# AWS_SECRET_KEY=your_aws_secret_key
-# AWS_REGION=us-east-1
-# S3_BUCKET=finance-app-receipts
-```
-
-### 3. Running the Application with Docker
+<!-- ### 2. Running the Application with Docker
 
 The entire application is designed to run with Docker Compose:
 
@@ -72,20 +53,11 @@ Docker Compose will:
 - Build all service images
 - Start the NATS message broker
 - Start all microservices with the correct configuration
-- Set up the necessary network for inter-service communication
+- Set up the necessary network for inter-service communication -->
 
-## Service Ports
+## 2. Running the Application with Locally
 
-- API Gateway: 3000
-- Auth Service: Uses NATS (no direct HTTP port)
-- Transaction Service: Uses NATS (no direct HTTP port)
-- Budget Service: Uses NATS (no direct HTTP port)
-- Analytics Service: Uses NATS (no direct HTTP port)
-- AI Insights Service: Uses NATS (no direct HTTP port)
-
-## Local Development (Recommended)
-
-If you need to develop or test services individually:
+To run the app locally:
 
 ### Install dependencies for each service
 
@@ -166,20 +138,37 @@ sudo cp nats-server /usr/local/bin
 nats-server
 ```
 
-### Running tests
+## Service Ports
 
-```bash
-cd <service-name> && yarn run test
-```
+- API Gateway: 3000
+- Auth Service: Uses NATS (no direct HTTP port)
+- Transaction Service: Uses NATS (no direct HTTP port)
+- Budget Service: Uses NATS (no direct HTTP port)
+- Analytics Service: Uses NATS (no direct HTTP port)
+- AI Insights Service: Uses NATS (no direct HTTP port)
 
-## Deployment
+## API Documentation
 
-For production deployment:
+The Money Wise API is fully documented using Swagger (OpenAPI). After starting the application, you can access the interactive API documentation at:
+http://localhost:3000/api/docs
 
-```bash
-# Build production images
-docker-compose -f docker-compose.prod.yml build
+### Features of the Swagger Documentation
+* **Interactive Interface**: Test API endpoints directly from your browser
+* **Request/Response Models**: View detailed schema information for all DTOs
+* **Authentication Support**: Test secured endpoints with JWT authentication
+* **Categorized Endpoints**: Endpoints are grouped by domain (auth, transactions, budgets, etc.)
 
-# Deploy the stack
-docker-compose -f docker-compose.prod.yml up -d
-```
+### Using Swagger with Authentication
+1. Use the `/api/docs/auth/login` endpoint to obtain an access token. Copy the user id as well and have it somewhere. 6810a26feda6fc6abc66e32d
+2. Click the "Authorize" button at the top of the page
+3. Enter your token.
+4. All subsequent requests will include your authentication token
+
+## Screenshots
+
+Below are screenshots of the Money Wise application interfaces:
+
+![Register](/screenshots/register.png)
+![Login](/screenshots/login.png)
+![Add Transaction](/screenshots/add_transaction.png)
+![Get transactions](/screenshots/get_transactions.png)
