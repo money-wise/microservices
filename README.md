@@ -275,7 +275,7 @@ http://localhost:3000/api/docs
 * **Categorized Endpoints**: Endpoints are grouped by domain (auth, transactions, budgets, etc.)
 
 ### Using Swagger with Authentication
-1. Use the `/api/docs/auth/login` endpoint to obtain an access token. Copy the user id as well and have it somewhere. 6810a26feda6fc6abc66e32d
+1. Use the `/api/docs/auth/login` endpoint to obtain an access token. Copy the user id as well and have it somewhere.
 2. Click the "Authorize" button at the top of the page
 3. Enter your token.
 4. All subsequent requests will include your authentication token
